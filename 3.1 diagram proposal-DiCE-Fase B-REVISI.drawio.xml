@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="draw.io">
+  <diagram name="Fase B - DiCE Counterfactual Explanations (REVISI)" id="faseB_revisi_001">
+    <mxGraphModel dx="800" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="3200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- START: FASE B -->
+        <mxCell id="node_start" value="FASE B&#xa;(Counterfactual Explanations)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="30" width="350" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- INPUT -->
+        <mxCell id="node_input" value="Input: Instance dari Data Uji&#xa;&#xa;• 8 sampel representatif (variasi confidence)&#xa;• 4 Not Potable + 4 Potable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="140" width="350" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- KONFIGURASI DiCE -->
+        <mxCell id="node_config" value="Konfigurasi DiCE&#xa;&#xa;• Model: NGBoost (probabilistic)&#xa;• Method: genetic&#xa;• total_CFs: 3 per instance&#xa;• Ref: Mothilal et al. 2020" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="280" width="350" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- CONSTRAINT DOMAIN -->
+        <mxCell id="node_constraint" value="Constraint Domain (WHO/Permenkes)&#xa;&#xa;• pH: 6.5 - 8.5&#xa;• Solids (TDS): 0 - 1000 mg/l&#xa;• Chloramines: 0 - 4 mg/l&#xa;• Sulfate: 0 - 250 mg/l&#xa;• Trihalomethanes: 0 - 80 µg/l&#xa;• Turbidity: 0 - 5 NTU&#xa;• Ref: WHO 2022, Permenkes No.2/2023" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="440" width="350" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- DiCE GENERATION -->
+        <mxCell id="node_generation" value="DiCE Generation&#xa;&#xa;• desired_class: flip (0→1 atau 1→0)&#xa;• Arah utama: Not Potable → Potable&#xa;  (Rekomendasi Perbaikan)&#xa;• Arah sekunder: Potable → Not Potable&#xa;  (Analisis Sensitivitas)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="650" width="350" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Validity > 90%? -->
+        <mxCell id="node_validity" value="Validity &gt; 90%?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="840" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ADJUST OPTIMIZER (NO path from validity) -->
+        <mxCell id="node_adjust" value="Adjust Optimizer Weights&#xa;&#xa;• Tingkatkan bobot validity&#xa;• Loop kembali ke DiCE Generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;align=center;verticalAlign=middle;dashed=1;dashPattern=8 8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="855" width="220" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Feasibility OK? -->
+        <mxCell id="node_feasibility" value="Feasibility OK?&#xa;(Sesuai constraint?)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1010" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- RELAX CONSTRAINTS (NO path from feasibility) -->
+        <mxCell id="node_relax" value="Relax Constraints&#xa;&#xa;• Perluas range bertahap&#xa;• Loop kembali ke DiCE Generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;align=center;verticalAlign=middle;dashed=1;dashPattern=8 8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="1025" width="220" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- EVALUASI COUNTERFACTUAL -->
+        <mxCell id="node_eval_cf" value="Evaluasi Counterfactual&#xa;&#xa;• Validity Rate (% CF yang berhasil flip)&#xa;• Proximity (jarak ke original, lower=better)&#xa;• Sparsity (jumlah fitur diubah, lower=better)&#xa;• Diversity (variasi antar CF, higher=better)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="1180" width="350" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- EVALUASI FEASIBILITY VS REGULASI -->
+        <mxCell id="node_eval_reg" value="Evaluasi Feasibility vs Regulasi&#xa;&#xa;• Berapa % CF memenuhi WHO Guidelines?&#xa;• Berapa % CF memenuhi Permenkes No.2/2023?&#xa;• Gap analysis WHO vs Permenkes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="1350" width="350" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- OUTPUT -->
+        <mxCell id="node_output" value="Output: Prescriptive Recommendations&#xa;&#xa;• Set rekomendasi per instance&#xa;• Parameter yang perlu diubah + target value&#xa;• Tingkat keyakinan model (dari NGBoost probability)&#xa;• Prioritisasi berdasarkan confidence level" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="225" y="1510" width="350" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="node_end" value="END" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="325" y="1680" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ARROWS -->
+
+        <!-- Start -> Input -->
+        <mxCell id="edge_start_input" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_start" target="node_input" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Input -> Config -->
+        <mxCell id="edge_input_config" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_input" target="node_config" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Config -> Constraint -->
+        <mxCell id="edge_config_constraint" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_config" target="node_constraint" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Constraint -> Generation -->
+        <mxCell id="edge_constraint_generation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_constraint" target="node_generation" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Generation -> Validity Decision -->
+        <mxCell id="edge_generation_validity" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_generation" target="node_validity" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Validity -> NO -> Adjust -->
+        <mxCell id="edge_validity_no" value="NO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" edge="1" source="node_validity" target="node_adjust" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Adjust -> Loop back to DiCE Generation -->
+        <mxCell id="edge_adjust_loop" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" edge="1" source="node_adjust" target="node_generation" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="140" y="715" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Validity -> YES -> Feasibility -->
+        <mxCell id="edge_validity_yes" value="YES" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" edge="1" source="node_validity" target="node_feasibility" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Feasibility -> NO -> Relax -->
+        <mxCell id="edge_feasibility_no" value="NO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" edge="1" source="node_feasibility" target="node_relax" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relax -> Loop back to DiCE Generation -->
+        <mxCell id="edge_relax_loop" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;dashed=1;" edge="1" source="node_relax" target="node_generation" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="140" y="748" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Feasibility -> YES -> Eval CF -->
+        <mxCell id="edge_feasibility_yes" value="YES" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" edge="1" source="node_feasibility" target="node_eval_cf" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Eval CF -> Eval Regulasi -->
+        <mxCell id="edge_eval_cf_reg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_eval_cf" target="node_eval_reg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Eval Regulasi -> Output -->
+        <mxCell id="edge_eval_reg_output" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_eval_reg" target="node_output" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Output -> End -->
+        <mxCell id="edge_output_end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_output" target="node_end" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
