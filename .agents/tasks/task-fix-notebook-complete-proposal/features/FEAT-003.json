@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "fix",
   "description": "Address review feedback: (1) Fix duplicate w:shd elements in Gantt cells of the docx, (2) Wrap NGBoost training in `if smote_success:` to prevent dead code, (4) Remove fix_proposal_v8.py from the repo.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Write a Python script to fix duplicate w:shd in the docx: for each shaded cell in doc.tables[1] rows 2-7, remove any existing w:shd elements before the blue one, leaving only one w:shd per cell.",
     "Modify cell 10 of the notebook: wrap the NGBoost training try block with `if smote_success:` so degraded SMOTE output is not used.",
@@ -21,5 +21,5 @@
     "python -c \"import os; assert not os.path.exists('fix_proposal_v8.py'); print('fix_proposal_v8.py removed')\""
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "Fixed all 3 review issues: (1) Removed 48 duplicate w:shd elements from Gantt cells in the docx, (2) Added smote_success=True initialization and wrapped NGBoost training in 'if smote_success:' guard so degraded SMOTE output is never used for training, (4) Deleted fix_proposal_v8.py via git rm. All verifications pass."
 }
