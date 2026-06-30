@@ -9,6 +9,6 @@
     "tests": "pass",
     "test_quality": "pass",
     "docker_build": "skipped",
-    "summary": "Notebook is valid JSON with 43 cells. NaN fix present in cells 10 and 16. Docx is valid with 277 paragraphs and 8 tables. All 3 reference placeholders found. Gantt chart has 145 shaded cells across the 6 activities."
+    "summary": "Notebook valid (43 cells). NaN fix present in cells 10 and 16 with smote_success gating. Docx valid (277 paragraphs, 8 tables). All 3 reference placeholders found. Gantt chart has 48 blue-shaded cells with no duplicate w:shd elements. fix_proposal_v8.py removed. All review issues addressed."
   }
 }
