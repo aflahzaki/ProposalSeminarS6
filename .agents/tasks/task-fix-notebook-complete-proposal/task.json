@@ -1,0 +1,7 @@
+{
+  "task_id": "task-fix-notebook-complete-proposal",
+  "task_description": "Fix NaN error in Canada V2 notebook hyperparameter tuning (caused by SMOTE-ENN producing NaN in y_train_final) and complete the V8 proposal document by filling Tabel 1.1 Gantt chart and adding reference placeholders [ref Mothilal2020], [ref Canada-Figshare], [ref Guo2017] in relevant sections.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}

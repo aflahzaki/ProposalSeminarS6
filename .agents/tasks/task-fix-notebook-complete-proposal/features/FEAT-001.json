@@ -1,0 +1,25 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Fix NaN error in NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb Cell 10 (SMOTE-ENN) and Cell 16 (Hyperparameter Tuning). The error occurs because SMOTE-ENN on multi-class data (5 CCME_WQI classes) can produce NaN values in y_train_final. When this data is then used in StratifiedKFold during grid search (Cell 16), some folds contain NaN in y causing ValueError.",
+  "status": "in_progress",
+  "steps": [
+    "Read the notebook programmatically using nbformat: nb = nbformat.read('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb', as_version=4)",
+    "Modify Cell 10 (index 10): After the line 'X_train_resampled, y_train_resampled = smote_enn.fit_resample(X_train_s, y_train.values)', add NaN checking/cleanup code that: (a) checks for NaN in both X_train_resampled and y_train_resampled, (b) removes rows where NaN exists in either X or y, (c) prints how many rows were removed, (d) if all rows would be removed or y still has NaN after cleanup, sets smote_success = False",
+    "Also add NaN safety in Cell 10 at the point where X_train_final and y_train_final are set (both in the use_smote=True and else branches): after assignment, add a final safety check that removes any NaN rows from X_train_final and y_train_final",
+    "Modify Cell 16 (index 16): At the beginning of the hyperparameter tuning section, before the grid search loop starts, add a defensive NaN check: 'nan_mask = ~np.isnan(y_train_final); X_train_final = X_train_final[nan_mask]; y_train_final = y_train_final[nan_mask]' with appropriate print statement showing if any rows were dropped",
+    "Save the modified notebook: nbformat.write(nb, 'NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb')"
+  ],
+  "acceptance_criteria": [
+    "Cell 10 contains NaN removal code after SMOTE-ENN fit_resample call",
+    "Cell 16 contains a defensive NaN check before the StratifiedKFold grid search loop",
+    "The notebook is valid JSON after modification (parseable by nbformat)",
+    "The NaN fix prints informational messages about how many rows were cleaned"
+  ],
+  "verification": [
+    "python -c \"import nbformat; nb = nbformat.read('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb', as_version=4); assert 'isnan' in nb.cells[10].source or 'NaN' in nb.cells[10].source; assert 'isnan' in nb.cells[16].source or 'nan' in nb.cells[16].source; print('NaN fix verified in cells 10 and 16')\"",
+    "python -c \"import nbformat; nb = nbformat.read('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb', as_version=4); print(f'Notebook valid: {len(nb.cells)} cells')\""
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
