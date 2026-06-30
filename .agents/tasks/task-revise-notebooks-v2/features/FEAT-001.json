@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Create NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb with revised preprocessing order (Impute->Scale->Split), hyperparameter tuning (Grid Search + 5-fold CV), conditional SMOTE-ENN, updated DiCE constraints (WHO generation + Permenkes evaluation), and academic references per section.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb as a valid ipynb JSON file based on the structure of V1 but with the following changes throughout",
     "Cell 0: Colab badge link updated to V2 filename",
@@ -54,5 +54,5 @@
     "python3 -c \"import json; nb=json.load(open('NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb')); src=''.join(c for cell in nb['cells'] for c in cell['source']); assert 'Zero Leakage' not in src or 'zero leakage' not in src.lower(), 'Zero Leakage still present'; assert 'Al Bataineh' in src, 'Missing Al Bataineh reference'; assert 'SMOTE' in src, 'Missing SMOTE'; assert 'GridSearch' in src or 'grid_search' in src or 'param_grid' in src, 'Missing grid search'; print('Content checks passed')\""
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Notebook created with 38 cells (exceeds minimum 25). All code cells parse as valid Python. All acceptance criteria verified: preprocessing order is Impute->Scale->Split, Grid Search with 5-fold CV exists for all 3 models, SMOTE-ENN conditional comparison implemented, DiCE uses WHO for generation and Permenkes for evaluation, no Zero Leakage mentions remain, Al Bataineh et al. (2026) referenced throughout. Counterfactual metrics (Validity, Proximity, Sparsity, Diversity, Feasibility) all present."
 }
