@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Create a Python script (create_proposal_v8.py) that loads the V7 docx, makes all 11 targeted edits to produce V8, and saves as AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create /projects/sandbox/ProposalSeminarS6/create_proposal_v8.py that uses python-docx to load V7 and produce V8",
     "The script must implement a helper function to clear a paragraph's runs and set new text while preserving the paragraph's style/formatting properties (pPr XML element)",
@@ -40,5 +40,5 @@
     "python3 -c \"from docx import Document; doc = Document('/projects/sandbox/ProposalSeminarS6/AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx'); print(f'OK: {len(doc.paragraphs)} paragraphs'); assert 'Median' in doc.paragraphs[218].text or 'median' in doc.paragraphs[218].text.lower(); assert 'MICE' not in doc.paragraphs[212].text; assert 'MinMax' in doc.paragraphs[222].text or 'normalisasi' in doc.paragraphs[222].text.lower(); print('All checks passed')\""
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "V8 generated with 277 paragraphs (V7 had 276 - one paragraph inserted for Canada dataset). All 11 internal checks passed. Paragraph indices shift by +1 after Para 210 due to the Canada dataset insertion. Al Bataineh et al. (2026) reference confirmed present in bibliography SDT as [5]. Para 135 (literature review MICE mention) preserved as-is per requirement."
 }
