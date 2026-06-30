@@ -1,0 +1,7 @@
+{
+  "task_id": "task-create-proposal-v8",
+  "task_description": "Create proposal V8 docx by loading V7 and making targeted edits: replace MICE with Median, Standardization with MinMax, train-only scaling with whole-data scaling, add Canada dataset references, update preprocessing order to match Al Bataineh et al. (2026) Algorithm 3",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001"],
+  "blocked_reason": null
+}

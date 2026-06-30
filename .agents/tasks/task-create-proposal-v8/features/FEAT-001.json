@@ -1,0 +1,44 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create a Python script (create_proposal_v8.py) that loads the V7 docx, makes all 11 targeted edits to produce V8, and saves as AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx",
+  "status": "in_progress",
+  "steps": [
+    "Create /projects/sandbox/ProposalSeminarS6/create_proposal_v8.py that uses python-docx to load V7 and produce V8",
+    "The script must implement a helper function to clear a paragraph's runs and set new text while preserving the paragraph's style/formatting properties (pPr XML element)",
+    "Edit 1 - Abstrak (Para 40): Replace the text to mention TWO datasets: Water Potability (Kadiwal) as primary dataset AND Canada Water Quality Dataset from Nature.com as international validation dataset. Keep the same academic tone and structure as the original abstract.",
+    "Edit 2 - Latar Belakang (Para 73): Replace 'dataset publik kualitas air berformat tabular' with explicit mention of both datasets - Water Potability (Kadiwal, Kaggle) and Canada Water Quality (Nature.com) - explaining that Canada dataset is used as external validation to prove pipeline robustness.",
+    "Edit 3 - Preprocessing overview (Para 212): Replace the entire paragraph to change the 5-step sequence from '(1) EDA, (2) MICE before split, (3) split before scaling, (4) scaling fit train only, (5) SMOTE-ENN' TO '(1) EDA, (2) Median Imputation on ALL data, (3) MinMax Scaling on ALL data, (4) Split 70/15/15 stratified, (5) SMOTE-ENN conditional on training data only'. Reference Al Bataineh et al. (2026) Algorithm 3.",
+    "Edit 4 - Penanganan Missing Values (Para 218): Replace MICE with Median Imputation. Change the explanation from multivariate chained equations to median imputation rationale (robust to outliers, following Al Bataineh et al. 2026 Step 1.1).",
+    "Edit 5 - Train-Test Split (Para 220): Change 'dilakukan sebelum penskalaan fitur' to 'dilakukan SETELAH imputation dan normalisasi pada seluruh data'. Explain this follows Al Bataineh et al. (2026) Algorithm 3 Step 1.3.",
+    "Edit 6 - Feature Scaling (Para 222 and 224): Replace 'standardization' with 'MinMax Scaling (normalisasi ke range [0,1])'. Replace the formula description from z-score (mu, sigma) to MinMax formula. Change 'dihitung hanya dari data latih' to 'di-fit pada seluruh data sebelum split'. Reference Al Bataineh et al. (2026) Step 1.2.",
+    "Edit 7 - Dataset/Pengumpulan Data (Para 209-210): After paragraph 210, insert a NEW paragraph about the Canada Water Quality Dataset from Nature.com. Describe it as external validation (proof of concept), features (Ammonia, BOD, DO, Orthophosphate, pH, Temperature, Nitrogen, Nitrate), target (CCME_WQI with 5 classes), ~3949 samples, demonstrates pipeline achieves ~98% accuracy on cleaner data.",
+    "Edit 8 - Narasi alur (Para 208): Replace the second sentence to match new order: 'Proses diawali dengan eksplorasi dataset, dilanjutkan dengan median imputation pada seluruh data, normalisasi MinMax pada seluruh data, pembagian data stratified 70/15/15, kemudian SMOTE-ENN kondisional pada data latih...'",
+    "Edit 9 - Consistency: Find and replace ALL other occurrences of 'MICE' in the document that refer to the preprocessing method. Para 210 mentions 'imputasi MICE' - change to 'imputasi median'. Para 135 discusses MICE in literature review context - leave that as-is since it's discussing general literature.",
+    "Edit 10 - Consistency: Replace 'standardization' in Para 242 with 'normalisasi MinMax' or equivalent. Find any other 'scaling fit on train only' or 'parameter dari train saja' narratives and change to 'scaling pada seluruh data sebelum split'.",
+    "Edit 11 - Daftar Pustaka: Check if Al Bataineh et al. (2026) reference already exists in the bibliography SDT. It does exist as reference [5]. No action needed for adding it. The bibliography is a structured Word field that should not be manually modified.",
+    "Run the script to generate the V8 docx file",
+    "Validate the output by loading it and checking key paragraphs contain expected text changes"
+  ],
+  "acceptance_criteria": [
+    "Output file AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx exists and is loadable by python-docx",
+    "Para 40 (Abstrak) mentions both Water Potability (Kadiwal) and Canada Water Quality datasets",
+    "Para 73 mentions both datasets explicitly with explanation of Canada as external validation",
+    "Para 212 describes new order: (1) EDA, (2) Median Imputation ALL data, (3) MinMax ALL data, (4) Split 70/15/15, (5) SMOTE-ENN train only",
+    "Para 218 says 'Median Imputation' instead of 'MICE'",
+    "Para 220 says split is done AFTER preprocessing (imputation and normalization)",
+    "Para 222-224 describe MinMax Scaling instead of Standardization",
+    "A new paragraph exists after original Para 210 describing the Canada dataset",
+    "Para 208 narrative matches the new preprocessing order",
+    "No remaining references to 'MICE' in preprocessing context (except literature review Para 135)",
+    "No remaining references to 'standardization' as the chosen method",
+    "No remaining references to 'dihitung hanya dari data latih' for scaling parameters",
+    "Al Bataineh et al. (2026) reference is present in bibliography (already exists as [5])"
+  ],
+  "verification": [
+    "python3 /projects/sandbox/ProposalSeminarS6/create_proposal_v8.py",
+    "python3 -c \"from docx import Document; doc = Document('/projects/sandbox/ProposalSeminarS6/AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx'); print(f'OK: {len(doc.paragraphs)} paragraphs'); assert 'Median' in doc.paragraphs[218].text or 'median' in doc.paragraphs[218].text.lower(); assert 'MICE' not in doc.paragraphs[212].text; assert 'MinMax' in doc.paragraphs[222].text or 'normalisasi' in doc.paragraphs[222].text.lower(); print('All checks passed')\""
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

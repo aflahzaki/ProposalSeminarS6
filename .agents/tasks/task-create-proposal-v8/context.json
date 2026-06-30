@@ -1,0 +1,19 @@
+{
+  "project_type": "Academic proposal document (Indonesian language) with Python docx manipulation scripts",
+  "language": "Python (for document generation), Indonesian (document content)",
+  "build_system": "Python scripts using python-docx library, run directly",
+  "test_framework": "Manual validation - python-docx load/verify, paragraph content checking",
+  "build_command": "python3 /projects/sandbox/ProposalSeminarS6/create_proposal_v8.py",
+  "test_command": "python3 -c \"from docx import Document; doc = Document('/projects/sandbox/ProposalSeminarS6/AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx'); print(f'OK: {len(doc.paragraphs)} paragraphs')\"",
+  "verification_instructions": "1. Run the build script to generate V8. 2. Load the output docx and verify key paragraphs contain expected text. 3. Check that MICE is replaced with median, standardization with MinMax, train-only scaling with whole-data scaling.",
+  "snapshot_or_generated_files": "AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx - generated from V7 by the Python script",
+  "setup_instructions": "python-docx is already installed. No additional setup needed.",
+  "environment_constraints": "OPEN_INTERNET mode. python-docx available. Source file is V7 docx (2.18MB). Output must be V8 docx preserving all formatting/styles.",
+  "contribution_requirements": "N/A - academic project",
+  "key_patterns": "The V7 docx has complex paragraph formatting with many runs per paragraph due to spell-check. To preserve formatting: clear paragraph and rewrite with plain text matching the style, OR use a targeted approach that replaces text in the paragraph's XML. The bibliography is stored in a structured document tag (SDT) in the body XML, not as regular paragraphs. Previous build scripts (build_v5.py through build_v8.py) generate the REVISI guide document, not the proposal itself. The new script must load V7 and modify specific paragraphs to produce V8.",
+  "relevant_files": [
+    "AflahZakISiregar_103062300095_PenulisanProposal-Final-V7.docx (source)",
+    "AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx (output target)"
+  ],
+  "directory_structure": "Flat workspace at /projects/sandbox/ProposalSeminarS6/ with docx files, ipynb notebooks, PDFs, CSVs, and Python build scripts"
+}
