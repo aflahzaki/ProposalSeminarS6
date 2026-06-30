@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "fix",
   "description": "Fix NaN error in NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb Cell 10 (SMOTE-ENN) and Cell 16 (Hyperparameter Tuning). The error occurs because SMOTE-ENN on multi-class data (5 CCME_WQI classes) can produce NaN values in y_train_final. When this data is then used in StratifiedKFold during grid search (Cell 16), some folds contain NaN in y causing ValueError.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Read the notebook programmatically using nbformat: nb = nbformat.read('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb', as_version=4)",
     "Modify Cell 10 (index 10): After the line 'X_train_resampled, y_train_resampled = smote_enn.fit_resample(X_train_s, y_train.values)', add NaN checking/cleanup code that: (a) checks for NaN in both X_train_resampled and y_train_resampled, (b) removes rows where NaN exists in either X or y, (c) prints how many rows were removed, (d) if all rows would be removed or y still has NaN after cleanup, sets smote_success = False",
@@ -21,5 +21,5 @@
     "python -c \"import nbformat; nb = nbformat.read('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb', as_version=4); print(f'Notebook valid: {len(nb.cells)} cells')\""
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Successfully added NaN detection and cleanup in cells 10 and 16. The notebook JSON diff is large (184 insertions, 97 deletions) due to nbformat reformatting output_data in cells, but the actual code changes are focused on the two target cells. Both verification checks pass."
 }
