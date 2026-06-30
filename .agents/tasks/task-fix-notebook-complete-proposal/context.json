@@ -1,0 +1,21 @@
+{
+  "project_type": "Academic research project - Jupyter notebooks + Word proposal document",
+  "language": "Python (notebooks), python-docx (document manipulation)",
+  "build_system": "None - individual Jupyter notebooks and Python scripts",
+  "test_framework": "None - validation is done by running notebook cells and checking docx output",
+  "build_command": "python -c \"import nbformat; nb = nbformat.read('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb', as_version=4); print('Notebook valid')\"",
+  "test_command": "python -c \"from docx import Document; doc = Document('AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx'); print(f'Doc valid: {len(doc.paragraphs)} paragraphs, {len(doc.tables)} tables')\"",
+  "verification_instructions": "1. Validate notebook JSON is parseable. 2. Check that cell 10 has NaN cleanup code after SMOTE-ENN. 3. Validate docx opens correctly and tables have correct content.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "pyenv global 3.12.13 && pip install nbformat pandas python-docx",
+  "environment_constraints": "OPEN_INTERNET network. pyenv with python 3.12.13. python-docx and nbformat installed.",
+  "contribution_requirements": "Commit to revise-notebooks-v2 branch",
+  "key_patterns": "Notebook uses nbformat for programmatic editing. Docx uses python-docx Document API. Existing table structure in docx must be preserved.",
+  "relevant_files": [
+    "NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb",
+    "AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx",
+    "water_potability.csv",
+    "Canada_dataset.csv"
+  ],
+  "directory_structure": "Flat repo structure - notebooks, docx files, CSV datasets, PDFs all in root directory. No src/ or tests/ directories."
+}

@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Complete the proposal docx (V8) by filling Tabel 1.1 (Jadwal Kegiatan Gantt chart) and adding reference placeholders in relevant sections. NOTE: Tabel 3.1 (Statistik Deskriptif) is already filled - it is Table index 4 with all 9 parameters populated with correct values.",
+  "status": "completed",
+  "steps": [
+    "Load the docx: from docx import Document; doc = Document('AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx')",
+    "Fill Tabel 1.1 (Jadwal Kegiatan) - this is doc.tables[1] with 8 rows x 26 cols. The table already has the header structure (Row 0: NO, Kegiatan, Bulan ke-... ; Row 1: month numbers 1-6 with 4 week columns each). Fill cells in rows 2-7 with shading/marker text to represent Gantt schedule: Row 2 (Studi Literatur): months 1-2 (cols 2-9); Row 3 (Pengumpulan dan Pengolahan Data): months 2-3 (cols 6-13); Row 4 (Pemodelan NGBoost): months 3-4 (cols 10-17); Row 5 (Implementasi DiCE): months 4-5 (cols 14-21); Row 6 (Pengujian dan Evaluasi): months 5 (cols 18-21); Row 7 (Penyusunan Laporan): months 4-6 (cols 14-25). Use cell shading (dark blue/gray fill) to mark active periods in the Gantt chart.",
+    "Add reference placeholder [ref Mothilal2020] in paragraph 247 or 248 (DiCE section in BAB III) - append to the text where DiCE framework is first described. The text currently says 'framework Diverse Counterfactual explanations (DiCE)' - add the reference after this mention.",
+    "Add reference placeholder [ref Canada-Figshare] in paragraph 211 where the Canada Water Quality Dataset is described - append after 'repositori Nature.com (Scientific Data)' to add the DOI reference.",
+    "Add reference placeholder [ref Guo2017] in paragraph 237 where ECE (Expected Calibration Error) is discussed - add after the mention of ECE to reference the seminal calibration paper.",
+    "Save the modified docx: doc.save('AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx')"
+  ],
+  "acceptance_criteria": [
+    "Table 1 (Jadwal Kegiatan) has cells with shading/fill to represent the Gantt chart schedule for all 6 activities across 6 months",
+    "Paragraph containing 'framework Diverse Counterfactual explanations (DiCE)' includes [ref Mothilal2020]",
+    "Paragraph 211 about Canada dataset includes [ref Canada-Figshare]",
+    "Paragraph 237 about ECE includes [ref Guo2017]",
+    "The docx file is valid and opens without errors"
+  ],
+  "verification": [
+    "python -c \"from docx import Document; doc = Document('AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx'); t = doc.tables[1]; filled = sum(1 for r in t.rows[2:] for c in r.cells if c.text.strip() or any(s.fill and s.fill.background_color for s in c._element.iter())); print(f'Gantt table has content/shading: {filled > 0}')\"",
+    "python -c \"from docx import Document; doc = Document('AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx'); text = ' '.join(p.text for p in doc.paragraphs); assert '[ref Mothilal2020]' in text, 'Missing Mothilal2020 ref'; assert '[ref Canada-Figshare]' in text, 'Missing Canada-Figshare ref'; assert '[ref Guo2017]' in text, 'Missing Guo2017 ref'; print('All references found')\""
+  ],
+  "blocked_reason": null,
+  "findings": "Successfully filled Gantt chart (48 shaded cells across 6 activities) and added all 3 reference placeholders. The verification for shading needs to use tc.iter(qn('w:shd')) rather than checking tc.find(qn('w:tcPr')).find(qn('w:shd')) due to how python-docx structures the XML. Tabel 3.1 was confirmed already complete and not modified."
+}
