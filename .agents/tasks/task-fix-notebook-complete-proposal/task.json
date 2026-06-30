@@ -1,7 +1,14 @@
 {
   "task_id": "task-fix-notebook-complete-proposal",
   "task_description": "Fix NaN error in Canada V2 notebook hyperparameter tuning (caused by SMOTE-ENN producing NaN in y_train_final) and complete the V8 proposal document by filling Tabel 1.1 Gantt chart and adding reference placeholders [ref Mothilal2020], [ref Canada-Figshare], [ref Guo2017] in relevant sections.",
-  "status": "in_progress",
+  "status": "completed",
   "feature_order": ["FEAT-001", "FEAT-002"],
-  "blocked_reason": null
+  "blocked_reason": null,
+  "verification": {
+    "build": "pass",
+    "tests": "pass",
+    "test_quality": "pass",
+    "docker_build": "skipped",
+    "summary": "Notebook is valid JSON with 43 cells. NaN fix present in cells 10 and 16. Docx is valid with 277 paragraphs and 8 tables. All 3 reference placeholders found. Gantt chart has 145 shaded cells across the 6 activities."
+  }
 }
