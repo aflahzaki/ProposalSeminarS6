@@ -1,7 +1,14 @@
 {
   "task_id": "task-create-proposal-v8",
   "task_description": "Create proposal V8 docx by loading V7 and making targeted edits: replace MICE with Median, Standardization with MinMax, train-only scaling with whole-data scaling, add Canada dataset references, update preprocessing order to match Al Bataineh et al. (2026) Algorithm 3",
-  "status": "in_progress",
+  "status": "completed",
   "feature_order": ["FEAT-001"],
-  "blocked_reason": null
+  "blocked_reason": null,
+  "verification": {
+    "build": "pass",
+    "tests": "pass",
+    "test_quality": "pass",
+    "docker_build": "skipped",
+    "summary": "create_proposal_v8.py runs cleanly and produces AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx (277 paragraphs, 2.00MB). All 11 verification checks pass. Post-review fixes applied: (1) Canada paragraph (Para 211) now has explicit Times New Roman 12pt font via both copied pPr/rPr from sibling and run-level rPr properties, (2) Formula paragraph (Para 224) now uses proper Office Math (oMath) element with m:f fraction and m:sSub subscripts instead of plain italic text."
+  }
 }

@@ -50,24 +50,48 @@ def set_paragraph_text(para, text, bold=False, italic=False):
 def insert_paragraph_after(para, text, style=None):
     """
     Insert a new paragraph after the given paragraph element.
-    Returns the new paragraph.
+    Copies font formatting (rPr) from the sibling paragraph's pPr to ensure
+    consistent rendering (12pt Times New Roman).
+    Returns the new paragraph element.
     """
     from docx.oxml import OxmlElement
     new_p = OxmlElement('w:p')
-    # Add paragraph properties with style if specified
-    if style:
+
+    # Build pPr: copy the sibling's pPr (which includes rPr with font info)
+    sibling_pPr = para._element.find(qn('w:pPr'))
+    if sibling_pPr is not None:
+        new_pPr = copy.deepcopy(sibling_pPr)
+        new_p.append(new_pPr)
+    elif style:
         pPr = OxmlElement('w:pPr')
         pStyle = OxmlElement('w:pStyle')
         pStyle.set(qn('w:val'), style)
         pPr.append(pStyle)
         new_p.append(pPr)
-    # Add run with text
+
+    # Build run with explicit font properties matching sibling runs
     run_elem = OxmlElement('w:r')
+    # Set run properties: Times New Roman, 12pt (24 half-points)
+    rPr = OxmlElement('w:rPr')
+    rFonts = OxmlElement('w:rFonts')
+    rFonts.set(qn('w:ascii'), 'Times New Roman')
+    rFonts.set(qn('w:hAnsi'), 'Times New Roman')
+    rFonts.set(qn('w:cs'), 'Times New Roman')
+    rPr.append(rFonts)
+    sz = OxmlElement('w:sz')
+    sz.set(qn('w:val'), '24')  # 24 half-points = 12pt
+    rPr.append(sz)
+    szCs = OxmlElement('w:szCs')
+    szCs.set(qn('w:val'), '24')
+    rPr.append(szCs)
+    run_elem.append(rPr)
+
     t_elem = OxmlElement('w:t')
     t_elem.text = text
     t_elem.set(qn('xml:space'), 'preserve')
     run_elem.append(t_elem)
     new_p.append(run_elem)
+
     # Insert after the given paragraph
     para._element.addnext(new_p)
     return new_p
@@ -75,13 +99,135 @@ def insert_paragraph_after(para, text, style=None):
 
 def create_minmax_formula_paragraph(para):
     """
-    Replace the z-score formula paragraph (oMathPara) with a MinMax formula.
-    We'll create a simple text-based formula since creating Office Math XML is complex.
+    Replace the z-score formula paragraph (oMathPara) with a proper Office Math (oMath)
+    MinMax formula: x' = (x - x_min) / (x_max - x_min)
+    This renders as a proper equation in Word, consistent with other formulas in the document.
     """
     clear_paragraph_content(para)
-    # Add the MinMax formula as text (since oMath XML is complex)
-    run = para.add_run("x' = (x - x_min) / (x_max - x_min)")
-    run.italic = True
+
+    # Define the math namespace
+    m_ns = 'http://schemas.openxmlformats.org/officeDocument/2006/math'
+
+    def m_tag(tag):
+        return f'{{{m_ns}}}{tag}'
+
+    # Build oMathPara > oMath element tree
+    oMathPara = OxmlElement('m:oMathPara')
+    oMath = OxmlElement('m:oMath')
+
+    # x' (left side of equation)
+    r_xprime = OxmlElement('m:r')
+    rPr_xp = OxmlElement('m:rPr')
+    sty_xp = OxmlElement('m:sty')
+    sty_xp.set(qn('m:val'), 'p')  # plain (normal math italic is default)
+    rPr_xp.append(sty_xp)
+    # We skip the math rPr for italic default behavior
+    t_xprime = OxmlElement('m:t')
+    t_xprime.text = "x\u2032"
+    r_xprime.append(t_xprime)
+    oMath.append(r_xprime)
+
+    # = sign
+    r_eq = OxmlElement('m:r')
+    t_eq = OxmlElement('m:t')
+    t_eq.text = " = "
+    r_eq.append(t_eq)
+    oMath.append(r_eq)
+
+    # Fraction: (x - x_min) / (x_max - x_min)
+    f_elem = OxmlElement('m:f')
+    # Fraction properties (default bar fraction)
+    fPr = OxmlElement('m:fPr')
+    f_type = OxmlElement('m:type')
+    f_type.set(qn('m:val'), 'bar')
+    fPr.append(f_type)
+    f_elem.append(fPr)
+
+    # Numerator: x - x_min
+    num = OxmlElement('m:num')
+    r_num = OxmlElement('m:r')
+    t_num = OxmlElement('m:t')
+    t_num.text = "x"
+    r_num.append(t_num)
+    num.append(r_num)
+
+    r_minus1 = OxmlElement('m:r')
+    t_minus1 = OxmlElement('m:t')
+    t_minus1.text = " - "
+    r_minus1.append(t_minus1)
+    num.append(r_minus1)
+
+    # x_min as subscript
+    sSub_num = OxmlElement('m:sSub')
+    sSub_num_e = OxmlElement('m:e')
+    r_x_num = OxmlElement('m:r')
+    t_x_num = OxmlElement('m:t')
+    t_x_num.text = "x"
+    r_x_num.append(t_x_num)
+    sSub_num_e.append(r_x_num)
+    sSub_num.append(sSub_num_e)
+    sSub_num_sub = OxmlElement('m:sub')
+    r_min_num = OxmlElement('m:r')
+    t_min_num = OxmlElement('m:t')
+    t_min_num.text = "min"
+    r_min_num.append(t_min_num)
+    sSub_num_sub.append(r_min_num)
+    sSub_num.append(sSub_num_sub)
+    num.append(sSub_num)
+
+    f_elem.append(num)
+
+    # Denominator: x_max - x_min
+    den = OxmlElement('m:den')
+
+    # x_max as subscript
+    sSub_max = OxmlElement('m:sSub')
+    sSub_max_e = OxmlElement('m:e')
+    r_x_max = OxmlElement('m:r')
+    t_x_max = OxmlElement('m:t')
+    t_x_max.text = "x"
+    r_x_max.append(t_x_max)
+    sSub_max_e.append(r_x_max)
+    sSub_max.append(sSub_max_e)
+    sSub_max_sub = OxmlElement('m:sub')
+    r_max_sub = OxmlElement('m:r')
+    t_max_sub = OxmlElement('m:t')
+    t_max_sub.text = "max"
+    r_max_sub.append(t_max_sub)
+    sSub_max_sub.append(r_max_sub)
+    sSub_max.append(sSub_max_sub)
+    den.append(sSub_max)
+
+    r_minus2 = OxmlElement('m:r')
+    t_minus2 = OxmlElement('m:t')
+    t_minus2.text = " - "
+    r_minus2.append(t_minus2)
+    den.append(r_minus2)
+
+    # x_min as subscript
+    sSub_min = OxmlElement('m:sSub')
+    sSub_min_e = OxmlElement('m:e')
+    r_x_min = OxmlElement('m:r')
+    t_x_min = OxmlElement('m:t')
+    t_x_min.text = "x"
+    r_x_min.append(t_x_min)
+    sSub_min_e.append(r_x_min)
+    sSub_min.append(sSub_min_e)
+    sSub_min_sub = OxmlElement('m:sub')
+    r_min_sub = OxmlElement('m:r')
+    t_min_sub = OxmlElement('m:t')
+    t_min_sub.text = "min"
+    r_min_sub.append(t_min_sub)
+    sSub_min_sub.append(r_min_sub)
+    sSub_min.append(sSub_min_sub)
+    den.append(sSub_min)
+
+    f_elem.append(den)
+    oMath.append(f_elem)
+    oMathPara.append(oMath)
+
+    # Append oMathPara to paragraph element
+    para._element.append(oMathPara)
 
 
 def main():
