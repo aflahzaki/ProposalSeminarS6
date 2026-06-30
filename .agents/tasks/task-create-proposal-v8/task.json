@@ -9,6 +9,6 @@
     "tests": "pass",
     "test_quality": "pass",
     "docker_build": "skipped",
-    "summary": "create_proposal_v8.py runs cleanly and produces AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx (277 paragraphs, 2.00MB). All 11 verification checks pass. Post-review fixes applied: (1) Canada paragraph (Para 211) now has explicit Times New Roman 12pt font via both copied pPr/rPr from sibling and run-level rPr properties, (2) Formula paragraph (Para 224) now uses proper Office Math (oMath) element with m:f fraction and m:sSub subscripts instead of plain italic text."
+    "summary": "create_proposal_v8.py runs cleanly and produces AflahZakISiregar_103062300095_PenulisanProposal-Final-AI-V8.docx (277 paragraphs, 2.09MB). All 11 verification checks pass. Semantic review issues (font formatting on inserted paragraph, formula rendering) have been fixed: Para 211 now has Times New Roman 12pt, Para 224 now has proper oMathPara with fraction element."
   }
 }
