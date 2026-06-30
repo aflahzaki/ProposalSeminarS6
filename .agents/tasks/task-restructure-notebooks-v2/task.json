@@ -1,0 +1,7 @@
+{
+  "task_id": "task-restructure-notebooks-v2",
+  "task_description": "Restructure both V2 notebooks to match the methodology diagram order: Training NGBoost (fixed params) BEFORE Hyperparameter Tuning, add Analisis Kalibrasi and Prediksi Kualitas Air as separate sections, Evaluasi compares before vs after tuning",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}
