@@ -1,7 +1,14 @@
 {
   "task_id": "task-restructure-notebooks-v2",
   "task_description": "Restructure both V2 notebooks to match the methodology diagram order: Training NGBoost (fixed params) BEFORE Hyperparameter Tuning, add Analisis Kalibrasi and Prediksi Kualitas Air as separate sections, Evaluasi compares before vs after tuning",
-  "status": "in_progress",
+  "status": "completed",
   "feature_order": ["FEAT-001", "FEAT-002"],
-  "blocked_reason": null
+  "blocked_reason": null,
+  "verification": {
+    "build": "pass",
+    "tests": "pass",
+    "test_quality": "pass",
+    "docker_build": "skipped",
+    "summary": "Both V2 notebooks restructured successfully. Valid JSON, all code cells parse with ast.parse. Section order matches diagram: EDA -> Preprocessing -> SMOTE-ENN -> Training NGBoost (fixed params: n_estimators=300, lr=0.05, minibatch_frac=0.8, col_sample=0.8, max_depth=4) -> Training Baselines -> Hyperparameter Tuning -> Evaluasi (before vs after comparison) -> Analisis Kalibrasi -> Prediksi Kualitas Air -> Counterfactual -> Constraint Evaluation -> Prescriptive. Kadiwal uses Bernoulli, Canada uses k_categorical(5). All existing content preserved (McNemar, ROC, KDE, Confusion Matrices, Feature Importance, CV, DiCE, WHO/Permenkes/CCME)."
+  }
 }
