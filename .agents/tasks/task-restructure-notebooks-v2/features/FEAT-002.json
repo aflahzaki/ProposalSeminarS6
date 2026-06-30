@@ -1,0 +1,40 @@
+{
+  "id": "FEAT-002",
+  "type": "fix",
+  "description": "Restructure NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb to match the methodology diagram order. Same structural changes as Kadiwal notebook but using k_categorical(5) for NGBoost multi-class, and Canada-specific DiCE binary grouping (Unacceptable/Acceptable).",
+  "status": "completed",
+  "steps": [
+    "Read the existing NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb file completely to understand all cell contents",
+    "Restructure the notebook to follow this EXACT section order matching the diagram (steps 1-14): (1) Title/Intro cell, (2) pip install, (3) imports, (4) data loading, (5) EDA - Exploratory Analysis, (6) Preprocessing (Impute->Scale->Split 70/15/15), (7) SMOTE-ENN Kondisional, (8) Training NGBoost with FIXED diagram params, (9) Training Baseline Models (XGBoost, Random Forest) with reasonable defaults, (10) Hyperparameter Tuning (Grid Search + 5-Fold CV) for all 3 models, (11) Training Models with Best Hyperparameters, (12) Evaluasi Model (compare before vs after tuning), (13) Analisis Kalibrasi, (14) Prediksi Kualitas Air, (15) Counterfactual Analysis with DiCE (binary grouping), (16) Evaluasi Constraint WHO/CCME, (17) Rekomendasi Preskriptif, (18) Summary",
+    "For step 8 (Training NGBoost - FIXED params), use these EXACT parameters for Canada multi-class: Dist=k_categorical(5) (since CCME WQI has 5 classes: Excellent, Good, Fair, Marginal, Poor), n_estimators=300, learning_rate=0.05, minibatch_frac=0.8, col_sample=0.8, Base=DecisionTreeRegressor(max_depth=4), Early stopping on validation set. Store model as ngb_initial.",
+    "For step 9 (Training Baseline Models), train XGBoost (objective='multi:softprob', num_class=5) and Random Forest with default params. Store as xgb_initial, rf_initial.",
+    "For step 10 (Hyperparameter Tuning), KEEP existing Grid Search code adapted for multi-class. NGBoost uses k_categorical(5). XGBoost uses multi:softprob. Scoring uses f1_macro for multi-class.",
+    "For step 11 (Training with Best Params), re-train all models with tuned params. Store as ngb_tuned, xgb_tuned, rf_tuned.",
+    "For step 12 (Evaluasi Model), compare initial vs tuned metrics: Accuracy, Precision (macro/weighted), Recall, F1 (macro/weighted), Log Loss. Show improvement clearly.",
+    "For step 13 (Analisis Kalibrasi), multi-class calibration analysis, per-class reliability diagrams where feasible.",
+    "For step 14 (Prediksi Kualitas Air), demonstrate the tuned model making multi-class predictions. Show predicted class probabilities across all 5 CCME classes for representative samples.",
+    "Keep all existing visualization code (confusion matrices, ROC One-vs-Rest, feature importance, calibration) but place in appropriate sections.",
+    "Keep the existing DiCE binary grouping implementation ({Marginal, Poor}=Unacceptable, {Excellent, Good, Fair}=Acceptable) intact. Ensure it references the TUNED model.",
+    "Keep 5-Fold CV, McNemar test, WHO/CCME constraint evaluation, prescriptive recommendations.",
+    "Preserve all academic references. Add references for new sections matching Kadiwal notebook pattern."
+  ],
+  "acceptance_criteria": [
+    "Section order matches diagram: EDA -> Preprocessing -> SMOTE-ENN -> Training NGBoost (fixed) -> Training Baselines -> HP Tuning -> Evaluasi (before vs after) -> Kalibrasi -> Prediksi -> Counterfactual -> WHO/CCME -> Preskriptif",
+    "NGBoost initial training uses k_categorical(5) with EXACTLY: n_estimators=300, learning_rate=0.05, minibatch_frac=0.8, col_sample=0.8, DecisionTreeRegressor(max_depth=4), early stopping",
+    "Evaluation section shows comparison of initial vs tuned metrics for all 3 models",
+    "Analisis Kalibrasi exists as separate named section",
+    "Prediksi Kualitas Air exists as separate named section",
+    "DiCE uses binary grouping: {Marginal,Poor}=Unacceptable, {Excellent,Good,Fair}=Acceptable",
+    "All visualizations preserved (confusion matrices, ROC OvR, feature importance, calibration)",
+    "All code cells parse as valid Python (ast.parse)",
+    "Notebook is valid JSON/ipynb format"
+  ],
+  "verification": [
+    "python3 -c \"import json; nb=json.load(open('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb')); print(f'Valid JSON, {len(nb[\\\"cells\\\"])} cells')\"",
+    "python3 -c \"import json, ast; nb=json.load(open('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb')); [ast.parse(''.join(c['source']).replace('!pip','#pip').replace('!apt','#apt')) for c in nb['cells'] if c['cell_type']=='code' and ''.join(c['source']).strip()]; print('All code cells parse')\"",
+    "python3 -c \"import json; nb=json.load(open('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb')); src='\\n'.join(''.join(c['source']) for c in nb['cells']); sections=['Training NGBoost','Training Baseline','Hyperparameter Tuning','Evaluasi Model','Analisis Kalibrasi','Prediksi Kualitas Air','Counterfactual','Evaluasi Constraint','Rekomendasi Preskriptif']; found=[s for s in sections if s in src]; missing=[s for s in sections if s not in src]; print(f'Found: {found}'); print(f'Missing: {missing}'); assert not missing\"",
+    "python3 -c \"import json; nb=json.load(open('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb')); src='\\n'.join(''.join(c['source']) for c in nb['cells']); assert 'k_categorical' in src, 'Missing k_categorical'; assert 'n_estimators=300' in src and 'learning_rate=0.05' in src and 'minibatch_frac=0.8' in src and 'max_depth=4' in src, 'Fixed params missing'; print('Canada fixed params verified')\""
+  ],
+  "blocked_reason": null,
+  "findings": "Restructured notebook from 34 cells to 43 cells. Added Training NGBoost (fixed params with k_categorical(n_classes)), Training Baseline Models (XGBoost multi:softprob + RF defaults), separate Analisis Kalibrasi (with ECE multiclass + uncertainty zone analysis), and Prediksi Kualitas Air (5-class probability distribution demos). Modified evaluation to compare initial vs tuned metrics (before/after table). Added markdown headers for Evaluasi Constraint WHO/CCME and Rekomendasi Preskriptif. The words 'Preprocessing' and 'Counterfactual' appear early in the intro cell description, but actual section headers are in correct diagram order. All verification checks pass."
+}

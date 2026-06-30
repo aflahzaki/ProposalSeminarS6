@@ -1,0 +1,41 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Restructure NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb to match the methodology diagram order. Key changes: (1) Add 'Training NGBoost' section with FIXED params from diagram BEFORE hyperparameter tuning, (2) Add 'Training Baseline Models' section with default params BEFORE tuning, (3) Move Hyperparameter Tuning AFTER initial training, (4) Evaluasi Model now compares before vs after tuning, (5) Add separate 'Analisis Kalibrasi' section, (6) Add separate 'Prediksi Kualitas Air' section before Counterfactual Analysis.",
+  "status": "completed",
+  "steps": [
+    "Read the existing NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb file completely to understand all cell contents",
+    "Restructure the notebook to follow this EXACT section order matching the diagram (steps 1-14): (1) Title/Intro cell, (2) pip install, (3) imports, (4) data loading, (5) EDA - Exploratory Analysis, (6) Preprocessing (Impute->Scale->Split 70/15/15), (7) SMOTE-ENN Kondisional, (8) Training NGBoost with FIXED diagram params, (9) Training Baseline Models (XGBoost, Random Forest) with reasonable defaults, (10) Hyperparameter Tuning (Grid Search + 5-Fold CV) for all 3 models, (11) Training Models with Best Hyperparameters (re-train with tuned params), (12) Evaluasi Model (compare BEFORE tuning vs AFTER tuning metrics side by side), (13) Analisis Kalibrasi (calibration curves, ECE, uncertainty zone), (14) Prediksi Kualitas Air (demonstrate making predictions with the best model, show probability outputs), (15) Counterfactual Analysis with DiCE, (16) Evaluasi Constraint WHO/Permenkes, (17) Rekomendasi Preskriptif, (18) Summary",
+    "For step 8 (Training NGBoost - FIXED params), create a NEW section with markdown explaining this follows the diagram methodology. Use these EXACT parameters: Dist=Bernoulli, n_estimators=300, learning_rate=0.05, minibatch_frac=0.8, col_sample=0.8, Base=DecisionTreeRegressor(max_depth=4), Early stopping on validation set. Store model as ngb_initial. Also evaluate on test set immediately to get baseline metrics.",
+    "For step 9 (Training Baseline Models), train XGBoost and Random Forest with default/reasonable params (not tuned). Store as xgb_initial, rf_initial. Evaluate on test to get baseline metrics.",
+    "For step 10 (Hyperparameter Tuning), KEEP the existing Grid Search code but frame it as 'optimization after initial training'. The tuning still searches over parameter grids.",
+    "For step 11 (Training with Best Params), re-train all models with the best params found from tuning. Store as ngb_tuned, xgb_tuned, rf_tuned.",
+    "For step 12 (Evaluasi Model), create a comparison table showing BOTH initial (pre-tuning) AND tuned (post-tuning) metrics for all 3 models. Include: Accuracy, Precision, Recall, F1, AUC-ROC, NLL, ECE. Show improvement/degradation clearly. Keep McNemar test between the TUNED models.",
+    "For step 13 (Analisis Kalibrasi), create a dedicated section with calibration curves (for tuned models), ECE comparison, uncertainty zone analysis. Move the existing calibration and uncertainty code here.",
+    "For step 14 (Prediksi Kualitas Air), create a new section demonstrating the final tuned NGBoost model making predictions on test samples. Show: input features, predicted class, probability distribution, confidence level. Select a few representative samples.",
+    "Keep all existing visualization code (ROC curves, KDE distributions, confusion matrices, feature importance) but place them in the Evaluasi Model or Analisis Kalibrasi sections as appropriate.",
+    "Keep the existing DiCE implementation (cells 28-37 in current V2) intact - NGBoostWrapper, sample selection, counterfactual generation, WHO/Permenkes constraint evaluation, prescriptive recommendations, counterfactual metrics. Just ensure they reference the TUNED model (the best model after hyperparameter tuning).",
+    "Keep the 5-Fold Cross-Validation section but place it within or after Evaluasi Model.",
+    "Preserve all academic references. Add reference for new sections: Training NGBoost references Duan et al. (2020) NGBoost paper, Analisis Kalibrasi references Guo et al. (2017), Prediksi Kualitas Air references Duan et al. (2020) probabilistic prediction."
+  ],
+  "acceptance_criteria": [
+    "Section order matches diagram: EDA -> Preprocessing -> SMOTE-ENN -> Training NGBoost (fixed) -> Training Baselines -> HP Tuning -> Evaluasi (before vs after) -> Kalibrasi -> Prediksi -> Counterfactual -> WHO/Permenkes -> Preskriptif",
+    "NGBoost initial training uses EXACTLY: n_estimators=300, learning_rate=0.05, minibatch_frac=0.8, col_sample=0.8, DecisionTreeRegressor(max_depth=4), Bernoulli dist, early stopping on validation",
+    "Evaluation section shows comparison table of initial vs tuned metrics for all 3 models",
+    "Analisis Kalibrasi exists as a separate named section with calibration curves and ECE",
+    "Prediksi Kualitas Air exists as a separate named section demonstrating predictions",
+    "All existing visualizations (ROC, KDE, confusion matrix, feature importance) are preserved",
+    "DiCE implementation is preserved with WHO constraints for generation and Permenkes for evaluation",
+    "5-Fold CV is preserved",
+    "All code cells parse as valid Python (ast.parse)",
+    "Notebook is valid JSON/ipynb format"
+  ],
+  "verification": [
+    "python3 -c \"import json; nb=json.load(open('NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb')); print(f'Valid JSON, {len(nb[\\\"cells\\\"])} cells')\"",
+    "python3 -c \"import json, ast; nb=json.load(open('NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb')); [ast.parse(''.join(c['source']).replace('!pip','#pip').replace('!apt','#apt')) for c in nb['cells'] if c['cell_type']=='code' and ''.join(c['source']).strip()]; print('All code cells parse')\"",
+    "python3 -c \"import json; nb=json.load(open('NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb')); src='\\n'.join(''.join(c['source']) for c in nb['cells']); sections=['Training NGBoost','Training Baseline','Hyperparameter Tuning','Evaluasi Model','Analisis Kalibrasi','Prediksi Kualitas Air','Counterfactual','Evaluasi Constraint','Rekomendasi Preskriptif']; found=[s for s in sections if s in src]; missing=[s for s in sections if s not in src]; print(f'Found sections: {found}'); print(f'Missing: {missing}'); assert not missing, f'Missing sections: {missing}'\"",
+    "python3 -c \"import json; nb=json.load(open('NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb')); src='\\n'.join(''.join(c['source']) for c in nb['cells']); assert 'n_estimators=300' in src and 'learning_rate=0.05' in src and 'minibatch_frac=0.8' in src and 'max_depth=4' in src, 'Fixed params missing'; print('Fixed NGBoost params verified')\""
+  ],
+  "blocked_reason": null,
+  "findings": "Restructured notebook from 38 cells to 45 cells. Added Training NGBoost (fixed params), Training Baseline Models, separate Analisis Kalibrasi, and Prediksi Kualitas Air sections. Modified evaluation to compare initial vs tuned metrics. Added Rekomendasi Preskriptif markdown header. The word 'Counterfactual' appears early in the intro text (pip install description), but the actual DiCE implementation section is correctly placed after Prediksi Kualitas Air. All verification checks pass."
+}

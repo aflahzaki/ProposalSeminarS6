@@ -1,0 +1,14 @@
+{
+  "task_id": "task-revise-notebooks-v2",
+  "task_description": "Revise both V1 Jupyter notebooks to V2 versions with: (1) new preprocessing order (Impute->Scale->Split per Al Bataineh et al. 2026), (2) Grid Search + 5-fold CV hyperparameter tuning, (3) conditional SMOTE-ENN, (4) updated DiCE with proper WHO/Permenkes constraints, (5) academic references per section, (6) binary DiCE grouping for Canada dataset",
+  "status": "completed",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null,
+  "verification": {
+    "build": "pass",
+    "tests": "pass",
+    "test_quality": "pass",
+    "docker_build": "skipped",
+    "summary": "Both V2 notebooks are valid JSON, all code cells parse with ast.parse, preprocessing order is Impute->Scale->Split, Grid Search + 5-fold CV exists, SMOTE-ENN conditional exists, academic references present, Zero Leakage narrative removed and replaced with Al Bataineh et al. (2026). Canada notebook correctly uses binary DiCE grouping (Unacceptable->Acceptable). Kadiwal notebook correctly uses WHO constraints for generation and Permenkes for evaluation."
+  }
+}

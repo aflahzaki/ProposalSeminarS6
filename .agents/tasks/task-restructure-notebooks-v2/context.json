@@ -1,0 +1,21 @@
+{
+  "project_type": "Academic/Research - Jupyter notebooks for water quality classification using NGBoost + DiCE",
+  "language": "Python (Jupyter notebooks)",
+  "build_system": "None - Jupyter notebooks designed for Google Colab execution",
+  "test_framework": "No automated tests - validation is structural (valid JSON/ipynb format) and code cell syntax correctness",
+  "build_command": "python3 -c \"import json; json.load(open('NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb')); json.load(open('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb')); print('Valid notebooks')\"",
+  "test_command": "python3 -c \"import json, ast; nb1=json.load(open('NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb')); nb2=json.load(open('NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb')); [ast.parse(''.join(c['source']).replace('!pip','#pip').replace('!apt','#apt')) for c in nb1['cells'] if c['cell_type']=='code' and ''.join(c['source']).strip()]; [ast.parse(''.join(c['source']).replace('!pip','#pip').replace('!apt','#apt')) for c in nb2['cells'] if c['cell_type']=='code' and ''.join(c['source']).strip()]; print('All code cells parse successfully')\"",
+  "verification_instructions": "1. Validate both V2 ipynb files are valid JSON. 2. Validate all code cells parse as valid Python (ast.parse). 3. Check section order matches diagram: EDA -> Preprocessing -> SMOTE-ENN -> Training NGBoost (fixed params) -> Training Baselines -> Hyperparameter Tuning -> Evaluasi (before vs after) -> Kalibrasi -> Prediksi -> Counterfactual -> WHO/Permenkes -> Preskriptif. 4. Verify NGBoost initial training uses fixed diagram params (n_estimators=300, lr=0.05, minibatch_frac=0.8, col_sample=0.8, max_depth=4). 5. Verify evaluation compares pre-tuning vs post-tuning.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "No setup needed - output is .ipynb files that will be executed on Google Colab",
+  "environment_constraints": "Output must be valid .ipynb JSON files. Cannot execute notebooks (no pandas/sklearn installed in this sandbox). Validation is structural only.",
+  "contribution_requirements": "Notebooks must be self-contained and runnable on Google Colab. Include pip install cells. Maintain Google Drive mounting with local fallback.",
+  "key_patterns": "Existing V2 notebooks use: markdown header cells with academic references per section, code cells with section separators (===), Google Drive mount with fallback, NGBoostWrapper pattern for DiCE compatibility, permitted_range for WHO constraints, Permenkes constraints for evaluation",
+  "relevant_files": [
+    "NGBoostDiCE_WaterQuality_Kadiwal_Final_V2.ipynb",
+    "NGBoostDiCE_WaterQuality_Canada_Proof_V2.ipynb",
+    "Canada_dataset.csv",
+    "water_potability.csv"
+  ],
+  "directory_structure": "Flat repository: .ipynb notebooks, .csv datasets, .pdf papers, .docx proposal documents, .py build scripts. No src/ or tests/ directories."
+}
