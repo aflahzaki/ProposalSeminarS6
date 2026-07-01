@@ -19,8 +19,11 @@
 8. [Metrik Evaluasi](#8-metrik-evaluasi)
 9. [Dataset](#9-dataset)
 10. [Kontribusi dan Novelitas](#10-kontribusi-dan-novelitas)
-11. [Pertanyaan Penguji dan Jawaban](#11-pertanyaan-penguji-dan-jawaban)
-12. [Referensi Kunci](#12-referensi-kunci)
+11. [BAB I - PENDAHULUAN (Pemahaman Mendalam)](#11-bab-i---pendahuluan-pemahaman-mendalam)
+12. [BAB II - KAJIAN PUSTAKA (Pemahaman Mendalam)](#12-bab-ii---kajian-pustaka-pemahaman-mendalam)
+13. [PETA REFERENSI (Setiap Klaim - Dari Mana)](#13-peta-referensi-setiap-klaim---dari-mana)
+14. [Pertanyaan Penguji dan Jawaban](#14-pertanyaan-penguji-dan-jawaban)
+15. [Referensi Kunci](#15-referensi-kunci)
 
 ---
 
@@ -543,7 +546,310 @@ Ini BERBEDA dari urutan konvensional yang biasa diajarkan (Split -> Impute -> Sc
 - **NGBoost + DiCE**: Solusi simultan - prediksi + uncertainty + rekomendasi actionable
 
 ---
-## 11. PERTANYAAN PENGUJI DAN JAWABAN
+
+## 11. BAB I - PENDAHULUAN (Pemahaman Mendalam)
+
+### Struktur dan Isi BAB I Per-Paragraf
+
+BAB I Pendahuluan disusun dengan alur argumentasi yang ketat, di mana setiap paragraf membangun fondasi untuk paragraf berikutnya. Berikut penjelasan mendalam per-paragraf:
+
+### Paragraf 1: Latar Belakang - Urgensi Global dan Lokal
+
+Paragraf pembuka menyajikan data urgensi dari WHO, UNICEF, dan World Bank (2022): **2 miliar orang di dunia belum memiliki akses air minum yang dikelola secara aman**. Data ini menegaskan bahwa masalah kualitas air bukan masalah lokal, melainkan tantangan global.
+
+Di tingkat nasional, PDAM Indonesia menghadapi tantangan serupa dalam memastikan kualitas air yang didistribusikan memenuhi standar. Parameter fisikokimia air (pH, kekeruhan, TDS, dll.) bersifat **controllable dan actionable**, artinya nilainya dapat diintervensi secara langsung melalui proses pengolahan air:
+- **Koagulasi**: Menurunkan turbidity dan organic carbon
+- **Filtrasi**: Mengurangi solids/TDS dan partikel tersuspensi
+- **Aerasi**: Meningkatkan dissolved oxygen, mengurangi besi/mangan
+- **Disinfeksi**: Mengontrol chloramines dan mengeliminasi patogen
+
+Sifat controllable ini menjadi **prasyarat metodologis** untuk counterfactual explanations -- DiCE memerlukan fitur yang nilainya BISA diubah secara operasional.
+
+### Paragraf 2: Tantangan Data Fisikokimia
+
+Paragraf kedua menjelaskan mengapa pendekatan tradisional (threshold-based) gagal:
+- **Variabilitas tinggi**: Data fisikokimia berfluktuasi karena faktor musim, sumber air, dan proses pengolahan
+- **Noise**: Sensor error, sampling inconsistency
+- **Missing values**: Tidak semua parameter selalu terukur (pH: 14.98% missing, Sulfate: 23.84% missing)
+- **Class imbalance**: Distribusi kelas tidak seimbang (61% Not Potable vs 39% Potable)
+
+Tantangan-tantangan ini menciptakan **uncertainty** yang tidak dapat ditangani oleh model deterministik. Model deterministik (XGBoost, RF) menghasilkan label keras tanpa informasi seberapa yakin model terhadap prediksinya. Ketika data noisy dan borderline, model deterministik **gagal membedakan pola valid dari noise** karena tidak ada mekanisme untuk mengkuantifikasi ketidakpastian.
+
+### Paragraf 3: Literature Review Singkat (State-of-the-Art)
+
+Paragraf ketiga merangkum pencapaian penelitian terdahulu:
+
+| Peneliti | Metode | Hasil | Limitasi |
+|----------|--------|-------|----------|
+| Park et al. (2022) | Ensemble + SHAP | ~80% accuracy | SHAP hanya diagnostik (WHY), bukan preskriptif (HOW) |
+| Patel et al. (2022) | Random Forest | 71% accuracy (dataset sama) | Deterministik, tanpa uncertainty |
+| Zhu et al. (2023) | SMOTE-ENN + NGBoost | AUC 0.85 (domain finansial) | Belum diterapkan di domain air |
+
+**Gap yang teridentifikasi:** Semua penelitian terdahulu masih bersifat **prediktif atau diagnostik**, BUKAN preskriptif. SHAP dan LIME hanya menjawab "WHY" (mengapa air tidak layak), tetapi TIDAK menjawab "HOW" (bagaimana mengubahnya agar layak). Tidak ada satupun yang memberikan rekomendasi actionable berupa: "ubah parameter X dari nilai A menjadi B".
+
+### Paragraf 4: Kebutuhan Prediksi Probabilistik
+
+Paragraf keempat mendalami limitasi model deterministik:
+- Model deterministik tanpa **confidence estimation** memberikan output binary tanpa gradasi
+- Pada zona borderline (probabilitas sekitar 50%), operator tidak memiliki informasi untuk pengambilan keputusan yang tepat
+- Contoh: XGBoost memprediksi "Tidak Layak" -- apakah yakin 99% atau hanya 51%? Operator tidak tahu
+- Kebutuhan: model yang menghasilkan **distribusi probabilitas** sehingga uncertainty dapat dikuantifikasi
+
+Ini memotivasi penggunaan NGBoost yang menghasilkan parameter distribusi Bernoulli (mu), di mana uncertainty = mu*(1-mu).
+
+### Paragraf 5: Transisi - Kebutuhan Integrasi
+
+Paragraf kelima membangun jembatan argumentasi:
+- Prediksi probabilistik SAJA belum cukup -- operator masih tidak tahu APA yang harus dilakukan
+- Rekomendasi preskriptif SAJA tanpa confidence bisa misleading
+- **Kebutuhan**: Integrasi antara probabilistic prediction (seberapa yakin) + prescriptive analytics (apa yang harus diubah)
+- Ini adalah **analisis preskriptif** -- level tertinggi dalam hierarki analytics (descriptive -> diagnostic -> predictive -> prescriptive)
+
+### Paragraf 6: Solusi yang Diajukan
+
+Paragraf keenam menyajikan solusi lengkap:
+- **NGBoost** sebagai model probabilistik (memberikan distribusi Bernoulli + uncertainty estimation)
+- **DiCE** sebagai framework counterfactual (memberikan rekomendasi perubahan parameter yang actionable)
+- **Validasi pada 2 dataset:**
+  - Dataset Kadiwal (Kaggle): benchmark utama, binary classification, challenging (~70% accuracy di literatur)
+  - Dataset Canada (Figshare): validasi generalizability, multi-class (5 kelas CCME WQI)
+- Constraint 2 tier: WHO Guidelines (generation) + Permenkes No.2/2023 (evaluation)
+
+### Mapping 1-1: Gap - Rumusan Masalah - Tujuan
+
+| Gap | Rumusan Masalah | Tujuan |
+|-----|-----------------|--------|
+| Gap 1: Ketiadaan estimasi ketidakpastian pada model ML deterministik di domain kualitas air | RM1: Bagaimana performa NGBoost dalam memodelkan kelayakan air secara probabilistik dibandingkan baseline deterministik? | T1: Menganalisis performa NGBoost secara komparatif terhadap baseline dari metrik klasifikasi dan kalibrasi |
+| Gap 2: Ketiadaan rekomendasi preskriptif yang actionable | RM2: Bagaimana implementasi DiCE pada model NGBoost untuk menghasilkan rekomendasi preskriptif? | T2: Mengimplementasikan DiCE pada model NGBoost untuk menghasilkan rekomendasi perubahan parameter fisikokimia |
+| Gap 3: Counterfactual belum diterapkan pada domain kualitas air | RM3: Sejauh mana kualitas rekomendasi counterfactual memenuhi 5 properti? | T3: Menganalisis kualitas counterfactual berdasarkan 5 properti termasuk trade-off |
+
+**Catatan penting:** Mapping ini harus 1-1. Setiap gap dijawab oleh TEPAT satu rumusan masalah dan satu tujuan. Tidak ada gap yang tidak terjawab, dan tidak ada tujuan yang tidak memiliki gap.
+
+---
+
+## 12. BAB II - KAJIAN PUSTAKA (Pemahaman Mendalam)
+
+### 2.1 Penelitian Terdahulu
+
+Berikut rangkuman 6 paper utama yang menjadi fondasi penelitian ini:
+
+| No | Peneliti | Dataset | Metode | Hasil Utama | Limitasi |
+|----|----------|---------|--------|-------------|----------|
+| 1 | Park et al. (2022) | Water Potability (Kadiwal) | Ensemble (RF, SVM, XGB) + SHAP | Accuracy ~80%, SHAP feature importance | Hanya diagnostik (WHY), tidak memberikan rekomendasi perubahan (HOW). Deterministik tanpa uncertainty. |
+| 2 | Patel et al. (2022) | Water Potability (Kadiwal) | Random Forest, Logistic Regression | RF accuracy 71%, LR 65% | Accuracy rendah, deterministik, tidak ada XAI atau rekomendasi. Preprocessing tanpa justifikasi urutan. |
+| 3 | Zhu et al. (2023) | Financial risk dataset | SMOTE-ENN + NGBoost | AUC 0.85, efektif menangani imbalance | Domain berbeda (finansial, bukan air). Tidak ada counterfactual/preskriptif. |
+| 4 | Aslam et al. (2022) | Pakistan water quality | ANN, SVM, Decision Tree | Accuracy tinggi pada dataset lokal | Deterministik, tidak ada uncertainty estimation. Dataset spesifik regional. |
+| 5 | Al Bataineh et al. (2026) | Water Quality Index (WQI) | XGBoost + FNN, Algorithm 3 preprocessing | Acc 86.9%, F1 0.849, AUC 0.894 | Deterministik. Preprocessing order dijustifikasi tapi tanpa probabilistic output atau rekomendasi preskriptif. |
+| 6 | Yurtsever (2022) | Water potability | Various ML (RF, SVM, KNN, ANN) | Perbandingan multi-model | Hanya komparasi model deterministik. Tanpa XAI, tanpa uncertainty, tanpa preskriptif. |
+
+### 2.2.1 Machine Learning untuk Kualitas Air: Evolusi Pendekatan
+
+Evolusi pendekatan analisis kualitas air menggunakan ML:
+
+1. **Statistik Tradisional (sebelum 2015):** Threshold-based rules, regresi linear, analisis korelasi Pearson. Limitasi: tidak mampu menangkap non-linearitas.
+
+2. **Single ML Model (2015-2018):** Decision Tree, SVM, KNN individual. Peningkatan akurasi tetapi tidak robust.
+
+3. **Ensemble Methods (2018-2021):** Random Forest, XGBoost, Gradient Boosting. Peningkatan signifikan (~70-85% accuracy). Masih deterministik.
+
+4. **Ensemble + XAI (2021-2023):** Penambahan SHAP, LIME untuk interpretabilitas. Bisa menjelaskan WHY tetapi belum HOW. Masih diagnostik.
+
+5. **Probabilistic + Prescriptive (2023-sekarang):** NGBoost untuk uncertainty estimation + DiCE untuk counterfactual explanations. **Posisi penelitian ini** -- level tertinggi yang menjawab prediksi + kepercayaan + rekomendasi sekaligus.
+
+### 2.2.2 Parameter Fisikokimia Air
+
+Dataset Kadiwal memiliki 9 parameter fisikokimia. Berikut penjelasan setiap parameter:
+
+| No | Parameter | Satuan | Deskripsi | Rentang Tipikal |
+|----|-----------|--------|-----------|-----------------|
+| 1 | **pH** | - (skala 0-14) | Derajat keasaman/kebasaan air. pH 7 = netral. pH < 7 = asam. pH > 7 = basa. | 6.5 - 8.5 (standar WHO) |
+| 2 | **Hardness** | mg/L (CaCO3) | Konsentrasi ion kalsium (Ca2+) dan magnesium (Mg2+) terlarut. Air sadah menyebabkan kerak pada pipa. | 0 - 500 mg/L |
+| 3 | **Solids (TDS)** | mg/L | Total Dissolved Solids -- jumlah total padatan terlarut (mineral, garam, logam). Indikator mineralisasi. | 0 - 1000 mg/L (WHO) |
+| 4 | **Chloramines** | mg/L | Senyawa desinfektan dari reaksi klorin (Cl2) dengan amonia (NH3). Digunakan sebagai alternatif klorinasi. | 0 - 4 mg/L (WHO maks) |
+| 5 | **Sulfate** | mg/L | Ion sulfat (SO4 2-) terlarut. Berasal dari mineral alam atau limbah industri. Konsentrasi tinggi menyebabkan efek laksatif. | 0 - 500 mg/L (WHO) |
+| 6 | **Conductivity** | uS/cm (microSiemens/cm) | Kemampuan air menghantarkan listrik. Berkorelasi dengan konsentrasi ion terlarut. Semakin tinggi ion, semakin tinggi konduktivitas. | 200 - 800 uS/cm (tipikal) |
+| 7 | **Organic_carbon** | mg/L | Total Organic Carbon (TOC) -- kandungan karbon dari bahan organik terlarut dan tersuspensi. Indikator kontaminasi organik. | 2 - 30 mg/L (tipikal) |
+| 8 | **Trihalomethanes** | ug/L (mikrogram/liter) | By-product disinfeksi (DBPs) dari reaksi klorin dengan bahan organik. Termasuk CHCl3, CHBrCl2, dll. Bersifat karsinogenik. | 0 - 80 ug/L (WHO maks) |
+| 9 | **Turbidity** | NTU (Nephelometric Turbidity Units) | Kekeruhan air akibat partikel tersuspensi (tanah liat, silt, plankton). Diukur dengan nefelometer. | 0 - 4 NTU (WHO) |
+
+### 2.2.3 NGBoost: Detail Teknis
+
+#### Natural Gradient vs Ordinary Gradient
+
+**Ordinary Gradient:**
+- Menghitung turunan loss terhadap parameter: dL/d(theta)
+- Berasumsi parameter berada di ruang Euclidean (datar)
+- Masalah: parameter distribusi probabilitas berada di **manifold Riemannian** (melengkung)
+- Akibat: langkah update bisa terlalu besar di satu arah dan terlalu kecil di arah lain
+
+**Natural Gradient:**
+- Memperhitungkan geometri ruang parameter distribusi
+- Formula: natural_grad = F^(-1) * ordinary_grad
+- F = Fisher Information Matrix
+- Menghasilkan update yang **invariant terhadap reparameterisasi** distribusi
+
+#### Fisher Information Matrix - Intuisi
+
+Fisher Information Matrix (FIM) mengukur **seberapa sensitif distribusi berubah** ketika parameter digeser sedikit. Secara intuitif:
+- FIM besar = distribusi sangat sensitif terhadap perubahan parameter -> perlu langkah kecil
+- FIM kecil = distribusi tidak terlalu berubah -> boleh langkah lebih besar
+- F^(-1) membalikkan ini: di area sensitif, natural gradient menjadi lebih kecil (hati-hati); di area kurang sensitif, lebih besar (percepat)
+
+Untuk distribusi Bernoulli dengan parameter mu:
+```
+F = 1 / (mu * (1 - mu))
+```
+- Jika mu = 0.5 (maximum uncertainty): F = 4 (sangat sensitif, langkah kecil)
+- Jika mu = 0.01 atau 0.99 (high confidence): F = ~100 (sangat sensitif di extreme)
+
+#### Distribusi Bernoulli untuk Binary Classification
+
+NGBoost memodelkan output sebagai distribusi Bernoulli:
+- P(y=1|x) = mu (probabilitas kelas positif/layak)
+- P(y=0|x) = 1 - mu
+- mu diperoleh dari sigmoid: mu = sigma(f(x))
+- Uncertainty aleatoric: H = mu * (1 - mu)
+
+#### NLL sebagai Scoring Rule
+
+Negative Log-Likelihood (NLL) adalah proper scoring rule yang mengukur kualitas distribusi prediksi:
+```
+NLL = -(1/N) * SUM[y_i * log(mu_i) + (1 - y_i) * log(1 - mu_i)]
+```
+- Proper scoring rule: dioptimalkan ketika distribusi prediksi = distribusi data sebenarnya
+- Berbeda dari accuracy yang hanya mengukur label akhir, NLL mengukur kualitas SELURUH distribusi
+- Semakin rendah NLL, semakin baik kalibrasi model
+
+#### Base Learner: Decision Tree
+
+NGBoost menggunakan Decision Tree Regressor sebagai base learner:
+- Memprediksi **parameter distribusi** (bukan label)
+- max_depth rendah (3-5) untuk mencegah overfitting
+- Setiap iterasi boosting menambah tree baru yang memperbaiki estimasi parameter
+
+### 2.2.4 XAI dan Counterfactual: Perbandingan
+
+| Aspek | SHAP | LIME | Counterfactual (DiCE) |
+|-------|------|------|----------------------|
+| **Tipe** | Diagnostik | Diagnostik | **Preskriptif** |
+| **Output** | Feature importance (global/lokal) | Local linear explanation | Actionable changes (perubahan spesifik) |
+| **Pertanyaan yang dijawab** | "WHY this prediction?" | "WHY locally for this instance?" | "HOW to change the outcome?" |
+| **Format output** | Bar chart kontribusi fitur | Koefisien linear lokal | "Ubah pH dari 5.2 ke 7.0, Turbidity dari 5.1 ke 3.5" |
+| **Actionability** | Rendah (tahu fitur penting, tidak tahu berapa harus diubah) | Rendah (penjelasan lokal, bukan rekomendasi) | **Tinggi** (instruksi spesifik dan operasional) |
+| **Untuk operator air** | "pH paling berpengaruh" (lalu apa?) | "Untuk sampel ini, pH dominan" (berapa idealnya?) | "Naikkan pH ke 7.0" (langsung actionable!) |
+
+### 2.2.5 DiCE: Framework Detail
+
+**Penemu:** Mothilal, Sharma, dan Tan (2020), Microsoft Research.
+
+**Paper:** "Explaining Machine Learning Classifiers through Diverse Counterfactual Explanations"
+
+**Formulasi Optimasi:**
+
+DiCE meminimalkan fungsi objektif multi-komponen:
+```
+minimize: yloss(f(c), y_target) + lambda1 * d(x, c) - lambda2 * diversity(C)
+subject to: c in permitted_range
+```
+
+Di mana:
+- `yloss(f(c), y_target)`: Loss agar prediksi CF (c) menuju kelas target -- memastikan **validity**
+- `lambda1 * d(x, c)`: Jarak antara instance asli (x) dan counterfactual (c) -- memastikan **proximity**
+- `-lambda2 * diversity(C)`: Negatif karena DIMAKSIMALKAN -- memastikan **diversity** antar CF
+- `permitted_range`: Hard constraint pada nilai fitur -- memastikan **feasibility**
+- Sparsity dioptimasi secara implisit melalui regularisasi L1 pada d(x,c)
+
+**5 Properties of Good Counterfactuals (Dastile & Celik, 2024):**
+
+1. **Validity**: CF harus berhasil mengubah prediksi model ke kelas target
+2. **Proximity**: Perubahan dari instance asli harus minimal (jarak kecil)
+3. **Sparsity**: Jumlah fitur yang diubah harus sesedikit mungkin
+4. **Diversity**: Himpunan CF yang dihasilkan harus bervariasi (memberikan alternatif)
+5. **Feasibility**: Nilai CF harus realistis dan memenuhi constraint domain
+
+### 2.2.6 Metrik Evaluasi: Semua Rumus
+
+#### Metrik Klasifikasi
+
+| Metrik | Rumus | Keterangan |
+|--------|-------|------------|
+| Accuracy | Acc = (TP + TN) / (TP + TN + FP + FN) | Proporsi total prediksi benar |
+| Precision | Prec = TP / (TP + FP) | Ketepatan prediksi positif |
+| Recall | Rec = TP / (TP + FN) | Kelengkapan deteksi positif |
+| F1-Score | F1 = 2 * Prec * Rec / (Prec + Rec) | Harmonic mean P dan R |
+
+#### Metrik Kalibrasi Probabilistik
+
+| Metrik | Rumus | Keterangan |
+|--------|-------|------------|
+| NLL | NLL = -(1/N) * SUM[y_i * log(mu_i) + (1-y_i) * log(1-mu_i)] | Negative Log-Likelihood, mengukur kualitas distribusi prediksi |
+| ECE | ECE = SUM_{m=1}^{M} (|B_m|/N) * |acc(B_m) - conf(B_m)| | Expected Calibration Error, selisih rata-rata antara confidence dan akurasi aktual per bin |
+
+Keterangan ECE:
+- M = jumlah bin (biasanya 10)
+- B_m = himpunan sampel dalam bin ke-m
+- acc(B_m) = akurasi aktual di bin m
+- conf(B_m) = rata-rata confidence prediksi di bin m
+- Model terkalibrasi sempurna: ECE = 0
+
+#### Metrik Counterfactual
+
+| Metrik | Rumus | Keterangan |
+|--------|-------|------------|
+| Validity | Validity = |{c in C : f(c) = y_target}| / |C| | Proporsi CF yang berhasil ubah kelas |
+| Proximity | Proximity = (1/k) * SUM_{i=1}^{k} dist(x, c_i) | Rata-rata jarak CF ke instance asli |
+| Sparsity | Sparsity = (1/k) * SUM_{i=1}^{k} (|features_changed_i| / d) | Rata-rata proporsi fitur yang berubah (d = total fitur) |
+| Diversity | Diversity = (2/(k*(k-1))) * SUM_{i<j} dist(c_i, c_j) | Rata-rata jarak antar-CF (pairwise) |
+| Feasibility | Feasibility = |{c in C : c in permitted_range}| / |C| | Proporsi CF yang memenuhi constraint domain |
+
+### 2.3 Gap Penelitian: Mapping ke Literatur
+
+| No | Gap | Paper yang Membuktikan Gap | Penjelasan |
+|----|-----|---------------------------|------------|
+| 1 | Ketiadaan estimasi ketidakpastian pada model ML deterministik di domain kualitas air | Park (2022): XGB+SHAP tanpa uncertainty; Patel (2022): RF tanpa confidence; Al Bataineh (2026): XGB+FNN deterministik; Aslam (2022): ANN/SVM deterministik | Seluruh paper di domain air menggunakan model deterministik yang output-nya hanya label tanpa distribusi probabilitas |
+| 2 | Ketiadaan rekomendasi preskriptif yang actionable | Park (2022): SHAP hanya feature importance; Aderemi (2025): systematic review mengidentifikasi "counterfactual reasoning identified but not implemented in water" | XAI yang ada (SHAP, LIME) hanya diagnostik -- menjawab WHY, bukan HOW |
+| 3 | Counterfactual belum diterapkan pada domain kualitas air | Nnadi (2026): DiCE di mental health; Dastile & Celik (2024): CF di credit scoring; Lenatti (2025): CF di penyakit kronis | CF sudah diterapkan di domain lain (kesehatan mental, kredit, penyakit kronis) tetapi belum ada di domain kualitas air |
+
+---
+
+## 13. PETA REFERENSI (Setiap Klaim - Dari Mana)
+
+### Tabel Pemetaan Klaim Metodologi ke Referensi
+
+Tabel berikut memetakan setiap keputusan metodologis dalam proposal ke referensi akademik yang menjustifikasinya. Ini penting untuk menjawab pertanyaan penguji: "Dari mana Anda mendapatkan metode ini?"
+
+| No | Klaim di Proposal | Referensi [nomor] | Kutipan/Bukti dari Paper |
+|----|-------------------|-------------------|--------------------------|
+| 1 | Median imputation untuk menangani missing values | Al Bataineh et al. [5] | "Step 1.1 Handle missing values using median imputation" (Algorithm 3, IEEE JSTARS 2026) |
+| 2 | MinMax scaling ke rentang [0,1] | Al Bataineh et al. [5] | "Step 1.2 Normalize all features to range [0,1] using MinMax normalization" (Algorithm 3) |
+| 3 | Split dilakukan SETELAH preprocessing (bukan sebelum) | Al Bataineh et al. [5] | "Step 1.3 Split D into training set D_train and testing set D_test" -- urutan eksplisit: impute, scale, BARU split |
+| 4 | SMOTE-ENN untuk menangani class imbalance | Zhu et al. [6] | "SMOTE-ENN combined sampling method effectively addresses class imbalance while removing noisy samples via ENN" |
+| 5 | Grid Search dengan 5-fold cross-validation untuk hyperparameter tuning | Nnadi et al. [10] | "Model hyperparameters were optimized via grid search with five-fold cross-validation" |
+| 6 | NGBoost sebagai model probabilistik | Duan et al. [7] | "Natural Gradient Boosting for Probabilistic Prediction" -- paper asli NGBoost dari Stanford (ICML 2020) |
+| 7 | DiCE sebagai framework counterfactual | Mothilal et al. [12] | "Explaining Machine Learning Classifiers through Diverse Counterfactual Explanations" (FAT* 2020, Microsoft Research) |
+| 8 | 5 properti counterfactual (validity, proximity, sparsity, diversity, feasibility) | Dastile & Celik [11] | "We evaluate counterfactual quality based on five properties: validity, proximity, sparsity, diversity, and feasibility" |
+| 9 | WHO constraint untuk generation (pH 6.5-8.5, TDS 0-1000, Turbidity 0-4, dll.) | WHO [20] | "Guidelines for Drinking-Water Quality, 4th edition" (ISBN 978-92-4-004506-4, 2022) |
+| 10 | Permenkes constraint untuk evaluasi (pH 6.5-8.5, TDS<300, Turbidity<3, Sisa Khlor 0.2-0.5) | Permenkes [21] | "Peraturan Menteri Kesehatan No. 2 Tahun 2023 tentang Peraturan Pelaksanaan PP No. 66/2014 -- Standar Baku Mutu Kesehatan Lingkungan" |
+| 11 | Dataset Kadiwal sebagai benchmark yang valid dan diakui | Patel et al. [8] | "99+ publications indexed in Scopus have utilized this dataset for water potability research" |
+| 12 | Dataset Canada untuk validasi generalizability | Figshare [22] | DOI: 10.6084/m9.figshare.27800394 -- "Canadian Water Quality Dataset with CCME WQI Classification" |
+| 13 | ECE (Expected Calibration Error) sebagai metrik kalibrasi | Guo et al. [23] | "On Calibration of Modern Neural Networks" (ICML 2017) -- memperkenalkan ECE sebagai standar metrik kalibrasi |
+| 14 | Counterfactual belum diterapkan di domain kualitas air (gap) | Aderemi et al. [9] | "Counterfactual reasoning has been identified as a promising approach but has not been implemented in water quality monitoring" (Systematic Review 2025) |
+| 15 | McNemar's test untuk perbandingan signifikansi statistik antar model | McNemar [24] | McNemar, Q. (1947). "Note on the sampling error of the difference between correlated proportions or percentages" -- Psychometrika, 12(2), 153-157 |
+| 16 | Binary grouping untuk multi-class counterfactual | Lenatti et al. [13] | Evaluasi DiCE pada multi-class dengan pendekatan binary grouping untuk arah counterfactual |
+| 17 | SMOTE-ENN kondisional (hanya jika improve) | Pendekatan evidence-based | Jika SMOTE tidak meningkatkan F1, data asli lebih representatif. Didukung oleh temuan Zhu et al. [6] bahwa efektivitas SMOTE bergantung pada karakteristik dataset |
+| 18 | Natural Gradient menggunakan Fisher Information Matrix | Duan et al. [7] | "We use the natural gradient, which accounts for the geometry of the parameter space via the Fisher information matrix" |
+| 19 | Decision Tree Regressor sebagai base learner NGBoost | Duan et al. [7] | "Default base learner is a depth-3 decision tree regressor that predicts distribution parameters" |
+| 20 | Data fisikokimia bersifat controllable/actionable | Domain knowledge | Parameter seperti pH, turbidity, chloramines dapat diintervensi langsung melalui proses pengolahan air (koagulasi, filtrasi, aerasi, disinfeksi) |
+
+### Catatan Penggunaan Tabel Ini
+
+1. **Saat sidang**: Jika penguji bertanya "Dari mana metode X?", rujuk nomor referensi di tabel ini
+2. **Penomoran referensi**: Nomor [x] merujuk ke daftar pustaka di proposal (BAB Daftar Pustaka)
+3. **Klaim tanpa referensi tunggal**: Beberapa keputusan (seperti SMOTE kondisional) merupakan pendekatan evidence-based yang dijustifikasi melalui eksperimen dalam penelitian ini sendiri
+4. **Prinsip utama**: Setiap keputusan desain harus BISA dijustifikasi -- entah dari literatur, regulasi, atau eksperimen sendiri
+
+---
+## 14. PERTANYAAN PENGUJI DAN JAWABAN
 
 ### KATEGORI A: PERTANYAAN TENTANG DATASET
 
@@ -661,7 +967,7 @@ Ini BERBEDA dari urutan konvensional yang biasa diajarkan (Split -> Impute -> Sc
 
 ---
 
-## 12. REFERENSI KUNCI (Yang Harus Diketahui Mendalam)
+## 15. REFERENSI KUNCI (Yang Harus Diketahui Mendalam)
 
 ### Referensi WAJIB HAFAL
 
